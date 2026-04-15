@@ -1,0 +1,6 @@
+supplier_id,supplier_name,location,email,phone_number,contact_person,reliability_score,risk_level,max_capacity,rating
+S001,ABC Metals,India,abc@metals.com,919876543210,Rahul Sharma,0.85,Low,50000,4.5
+S002,Global Steel Ltd,China,contact@globalsteel.com,861234567890,Li Wei,0.85,Medium,80000,4.2
+S003,FastParts Inc,Germany,info@fastparts.de,491234567890,Hans Muller,0.95,Low,30000,4.8
+S004,Prime Alloys,USA,prime@alloys.com,11234567890,John Smith,0.88,Medium,60000,4.1
+S005,Ultra Components,Japan,contact@ultra.jp,811234567890,Yuki Tanaka,0.85,Low,70000,4.6

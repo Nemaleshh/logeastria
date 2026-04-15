@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logistics Planner — ERP Supply Chain</title>
+    <meta name="description"
+        content="AI-driven autonomous logistics planner with delivery verification and transport fallback.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f1117;
+            color: #e1e4e8;
+            min-height: 100vh;
+        }
+
+        /* Nav */
+        .topnav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 32px;
+            background: rgba(22, 27, 34, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topnav .brand {
+            font-weight: 700;
+            font-size: 18px;
+            background: linear-gradient(135deg, #58a6ff, #bc8cff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .topnav .links a {
+            color: #8b949e;
+            text-decoration: none;
+            margin-left: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color .2s;
+        }
+
+        .topnav .links a:hover,
+        .topnav .links a.active {
+            color: #58a6ff;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            padding: 20px 24px 0;
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            border-radius: 8px 8px 0 0;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: rgba(255, 255, 255, 0.04);
+            color: #8b949e;
+            transition: all .2s;
+        }
+
+        .tab.active {
+            background: rgba(22, 27, 34, 0.9);
+            color: #f0f6fc;
+            border-bottom: 2px solid #7c3aed;
+        }
+
+        .tab:hover:not(.active) {
+            color: #e1e4e8;
+        }
+
+        /* Page */
+        .page {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 24px 40px;
+        }
+
+        .tab-content {
+            display: none;
+            padding-top: 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #f0f6fc;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: #8b949e;
+            margin-bottom: 24px;
+        }
+
+        /* Card */
+        .card {
+            background: rgba(22, 27, 34, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 22px;
+            margin-bottom: 18px;
+        }
+
+        .card h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #f0f6fc;
+            margin-bottom: 14px;
+        }
+
+        /* Inputs */
+        label {
+            display: block;
+            font-size: 11px;
+            color: #8b949e;
+            margin-bottom: 4px;
+            margin-top: 12px;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            color: #e1e4e8;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: rgba(88, 166, 255, .5);
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #484f58;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-purple {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(124, 58, 237, .25);
+        }
+
+        .btn-purple:hover {
+            background: linear-gradient(135deg, #8b5cf6, #c084fc);
+        }
+
+        .btn-green {
+            background: linear-gradient(135deg, #238636, #2ea043);
+            color: #fff;
+        }
+
+        .btn-green:hover {
+            background: linear-gradient(135deg, #2ea043, #3fb950);
+        }
+
+        .btn-red {
+            background: linear-gradient(135deg, #b91c1c, #dc2626);
+            color: #fff;
+        }
+
+        .btn-red:hover {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+        }
+
+        .btn-blue {
+            background: linear-gradient(135deg, #1f6feb, #388bfd);
+            color: #fff;
+        }
+
+        .btn-blue:hover {
+            background: linear-gradient(135deg, #388bfd, #58a6ff);
+        }
+
+        .btn:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .spinner {
+            display: none;
+            width: 15px;
+            height: 15px;
+            border: 2px solid rgba(255, 255, 255, .3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin .6s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .btn.loading .spinner {
+            display: inline-block;
+        }
+
+        .btn.loading .btn-text {
+            opacity: .7;
+        }
+
+        /* Inline loader */
+        .inline-loading {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: rgba(124, 58, 237, .1);
+            border: 1px solid rgba(124, 58, 237, .3);
+            border-radius: 8px;
+            margin-bottom: 18px;
+            color: #a855f7;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .inline-loading.show {
+            display: flex;
+        }
+
+        /* Order chips */
+        .order-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: rgba(88, 166, 255, .1);
+            border: 1px solid rgba(88, 166, 255, .25);
+            color: #58a6ff;
+            cursor: pointer;
+            transition: all .2s;
+            user-select: none;
+        }
+
+        .chip.selected {
+            background: rgba(88, 166, 255, .22);
+            border-color: #58a6ff;
+            color: #f0f6fc;
+        }
+
+        /* PIN display */
+        .pin-box {
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 22px;
+            background: rgba(63, 185, 80, .08);
+            border: 1px solid rgba(63, 185, 80, .3);
+            border-radius: 10px;
+            margin: 12px 0;
+        }
+
+        .pin-digits {
+            font-size: 36px;
+            font-weight: 700;
+            color: #3fb950;
+            letter-spacing: 8px;
+            font-family: monospace;
+        }
+
+        .pin-label {
+            font-size: 11px;
+            color: #8b949e;
+        }
+
+        .pin-warning {
+            font-size: 12px;
+            color: #d29922;
+            margin-top: 6px;
+        }
+
+        /* Summary grid */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .stat-box {
+            background: rgba(13, 17, 23, .8);
+            border: 1px solid rgba(255, 255, 255, .07);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .stat-box .lbl {
+            font-size: 10px;
+            color: #8b949e;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .stat-box .val {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f0f6fc;
+        }
+
+        /* Route table */
+        .rtable {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .rtable th {
+            background: rgba(255, 255, 255, .03);
+            color: #8b949e;
+            text-align: left;
+            padding: 9px 12px;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(255, 255, 255, .06);
+        }
+
+        .rtable td {
+            padding: 9px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, .04);
+        }
+
+        .rtable tr:last-child td {
+            border-bottom: none;
+        }
+
+        .stop-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(88, 166, 255, .15);
+            color: #58a6ff;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .coord {
+            color: #8b949e;
+            font-size: 11px;
+            font-family: monospace;
+        }
+
+        .weather-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .risk-LOW {
+            background: rgba(63, 185, 80, .12);
+            color: #4ade80;
+        }
+
+        .risk-MEDIUM {
+            background: rgba(251, 191, 36, .12);
+            color: #fbbf24;
+        }
+
+        .risk-HIGH {
+            background: rgba(239, 68, 68, .12);
+            color: #f87171;
+        }
+
+        .risk-CRITICAL {
+            background: rgba(139, 0, 0, .25);
+            color: #fca5a5;
+        }
+
+        /* Reasoning */
+        .reasoning-list {
+            list-style: none;
+        }
+
+        .reasoning-list li {
+            padding: 9px 12px;
+            margin-bottom: 7px;
+            background: rgba(168, 85, 247, .06);
+            border: 1px solid rgba(168, 85, 247, .15);
+            border-radius: 8px;
+            font-size: 13px;
+            color: #d0b3ff;
+            display: flex;
+            gap: 8px;
+        }
+
+        .reasoning-list li::before {
+            content: "✦";
+            color: #a855f7;
+            flex-shrink: 0;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-express {
+            background: rgba(239, 68, 68, .15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, .3);
+        }
+
+        .badge-economic {
+            background: rgba(34, 197, 94, .15);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, .3);
+        }
+
+        .badge-standard {
+            background: rgba(251, 191, 36, .15);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, .3);
+        }
+
+        /* Shipment table */
+        .stbl {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .stbl th {
+            background: rgba(255, 255, 255, .03);
+            color: #8b949e;
+            text-align: left;
+            padding: 9px 12px;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(255, 255, 255, .06);
+            white-space: nowrap;
+        }
+
+        .stbl td {
+            padding: 9px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, .04);
+            vertical-align: middle;
+        }
+
+        .stbl tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-IN_TRANSIT {
+            color: #58a6ff;
+        }
+
+        .status-DELIVERED {
+            color: #4ade80;
+        }
+
+        .status-INCIDENT {
+            color: #f87171;
+        }
+
+        /* Incident recovery panel */
+        .recovery-panel {
+            margin-top: 14px;
+            padding: 16px;
+            border-radius: 10px;
+            border: 1px solid;
+        }
+
+        .recovery-WAIT {
+            border-color: rgba(251, 191, 36, .4);
+            background: rgba(45, 38, 10, .4);
+        }
+
+        .recovery-REROUTE {
+            border-color: rgba(88, 166, 255, .4);
+            background: rgba(10, 25, 45, .4);
+        }
+
+        .recovery-REPLACE_VEHICLE {
+            border-color: rgba(168, 85, 247, .4);
+            background: rgba(30, 10, 50, .4);
+        }
+
+        .recovery-ABORT {
+            border-color: rgba(239, 68, 68, .4);
+            background: rgba(45, 10, 10, .4);
+        }
+
+        .recovery-CONTINUE {
+            border-color: rgba(63, 185, 80, .4);
+            background: rgba(10, 40, 15, .4);
+        }
+
+        .recovery-action {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .recovery-step {
+            font-size: 13px;
+            color: #c9d1d9;
+            padding: 4px 0;
+        }
+
+        /* Sample code */
+        .sample-code {
+            background: rgba(0, 0, 0, .4);
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 11px;
+            color: #3fb950;
+            line-height: 1.7;
+            font-family: monospace;
+            overflow-x: auto;
+            margin-top: 8px;
+        }
+
+        /* Log badge */
+        .log-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 12px;
+            border-radius: 8px;
+            background: rgba(88, 166, 255, .07);
+            border: 1px solid rgba(88, 166, 255, .2);
+            font-size: 12px;
+            color: #58a6ff;
+            word-break: break-all;
+        }
+
+        .result-hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="topnav">
+        <div class="brand">⚙ ERP Supply Chain</div>
+        <div class="links">
+            <a href="/">Inventory</a>
+            <a href="/production">Production</a>
+            <a href="/procurement">Procurement</a>
+            <a href="/logistics" class="active">Logistics</a>
+        </div>
+    </nav>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('plan',this)">🧠 Plan Logistics</button>
+        <button class="tab" onclick="switchTab('verify',this)">✅ Delivery Verify</button>
+        <button class="tab" onclick="switchTab('incident',this)">⚠️ Report Incident</button>
+        <button class="tab" onclick="switchTab('shipments',this)">📦 Shipments</button>
+    </div>
+
+    <div class="page">
+
+        <!-- ── TAB 1: PLAN ─────────────────────────────────────────────────── -->
+        <div id="tab-plan" class="tab-content active">
+            <div style="height:20px"></div>
+            <h1>🚛 Autonomous Logistics Planner</h1>
+            <p class="subtitle">AI orchestrator clusters orders, selects vehicle, optimizes route, and generates
+                delivery PIN.</p>
+
+            <div class="inline-loading" id="plan-loader">
+                <div class="spinner" style="display:block;border-top-color:#a855f7;"></div>
+                <span id="plan-loader-msg">Running AI pipeline...</span>
+            </div>
+
+            <!-- Order selector -->
+            <div class="card">
+                <h3>📦 Select Delivery Orders</h3>
+                <div class="order-chips" id="order-chips" style="margin-bottom:12px;">
+                    <div class="chip selected" data-id="O001" data-qty="15">O001 · Raj Electronics (15)</div>
+                    <div class="chip selected" data-id="O002" data-qty="8">O002 · Priya Stores (8)</div>
+                    <div class="chip selected" data-id="O003" data-qty="20">O003 · Kumar Mart (20)</div>
+                    <div class="chip" data-id="O004" data-qty="12">O004 · Anjali Traders (12)</div>
+                    <div class="chip" data-id="O005" data-qty="5">O005 · Deepak Enterprises (5)</div>
+                    <div class="chip" data-id="O006" data-qty="30">O006 · Sunita Retail (30)</div>
+                    <div class="chip" data-id="O007" data-qty="18">O007 · Mehta Goods (18)</div>
+                    <div class="chip" data-id="O008" data-qty="7">O008 · Sharma Supplies (7)</div>
+                </div>
+                <div style="font-size:12px;color:#8b949e;">
+                    Selected: <span id="sel-orders" style="color:#58a6ff;font-weight:600;">O001, O002, O003</span>
+                    &nbsp;|&nbsp; Total Qty: <span id="sel-qty" style="color:#4ade80;font-weight:600;">43</span>
+                </div>
+                <button class="btn btn-purple" id="btn-plan" onclick="planLogistics()">
+                    <div class="spinner"></div><span class="btn-text">🧠 Plan Logistics</span>
+                </button>
+            </div>
+
+            <!-- Result -->
+            <div id="plan-result" class="result-hidden">
+
+                <!-- Delivery PIN box -->
+                <div class="card" style="border-color:rgba(63,185,80,.3);">
+                    <h3>🔑 Delivery PIN — Share with Driver</h3>
+                    <div class="pin-box">
+                        <div>
+                            <div class="pin-label">4-DIGIT DELIVERY PIN</div>
+                            <div class="pin-digits" id="r-pin">——</div>
+                        </div>
+                        <div style="font-size:12px;color:#8b949e;max-width:200px;">
+                            Driver shows this PIN to customer. Customer reads it back to confirm delivery.
+                        </div>
+                    </div>
+                    <div style="font-size:12px;color:#8b949e;">Shipment ID: <span id="r-shipment"
+                            style="color:#58a6ff;font-family:monospace;">—</span></div>
+                    <div class="pin-warning">⚠ Keep this PIN confidential until delivery.</div>
+                </div>
+
+                <!-- Summary -->
+                <div class="card">
+                    <h3>✅ Plan Summary</h3>
+                    <div class="summary-grid">
+                        <div class="stat-box">
+                            <div class="lbl">Cluster</div>
+                            <div class="val" id="r-cluster">—</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="lbl">Vehicle</div>
+                            <div class="val" id="r-vehicle">—</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="lbl">Stops</div>
+                            <div class="val" id="r-stops">—</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="lbl">Distance</div>
+                            <div class="val" id="r-dist">—</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:8px;">Mode: <span id="r-mode">—</span></div>
+                </div>
+
+                <!-- Route table -->
+                <div class="card">
+                    <h3>🗺️ Optimized Route</h3>
+                    <table class="rtable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Stop</th>
+                                <th>Latitude</th>
+                                <th>Longitude</th>
+                                <th>Weather</th>
+                            </tr>
+                        </thead>
+                        <tbody id="route-tbody"></tbody>
+                    </table>
+                </div>
+
+                <!-- Reasoning -->
+                <div class="card" style="border-color:rgba(168,85,247,.2);">
+                    <h3>🧠 LLM Reasoning</h3>
+                    <ul class="reasoning-list" id="reasoning-list"></ul>
+                </div>
+
+                <!-- Log -->
+                <div class="card" style="border-color:rgba(88,166,255,.15);">
+                    <h3>📝 Orchestration Log</h3>
+                    <p style="font-size:12px;color:#8b949e;margin-bottom:8px;">Saved to <code
+                            style="color:#58a6ff;">data_base/logistics_log.csv</code></p>
+                    <div class="log-badge">🔖 <span id="r-logid">—</span></div>
+                </div>
+            </div>
+
+            <!-- Error -->
+            <div id="plan-error" class="result-hidden">
+                <div class="card" style="border-color:rgba(248,81,73,.3);background:rgba(40,16,14,.4);">
+                    <h3 style="color:#f85149;">❌ Error</h3>
+                    <p id="plan-error-msg" style="font-size:13px;color:#ffa198;margin-top:8px;"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TAB 2: DELIVERY VERIFY ──────────────────────────────────────── -->
+        <div id="tab-verify" class="tab-content">
+            <div style="height:20px"></div>
+            <h1>✅ Delivery PIN Verification</h1>
+            <p class="subtitle">Transport agent enters shipment ID and customer-provided 4-digit PIN to confirm
+                delivery.</p>
+
+            <div class="inline-loading" id="verify-loader">
+                <div class="spinner" style="display:block;border-top-color:#4ade80;"></div>
+                <span>Verifying PIN...</span>
+            </div>
+
+            <div class="card">
+                <h3>🔑 Verify Delivery</h3>
+                <label>Shipment ID</label>
+                <input id="v-shipment" placeholder="SHP-XXXXXXXX">
+                <label>Customer PIN (4 digits)</label>
+                <input id="v-pin" placeholder="e.g. 4821" maxlength="4" type="text"
+                    style="font-size:22px;letter-spacing:8px;font-family:monospace;">
+                <label>Verified By</label>
+                <input id="v-by" placeholder="driver / agent / system" value="driver">
+                <button class="btn btn-green" id="btn-verify" onclick="verifyDelivery()">
+                    <div class="spinner"></div><span class="btn-text">✅ Confirm Delivery</span>
+                </button>
+            </div>
+
+            <div id="verify-result" class="result-hidden"></div>
+        </div>
+
+        <!-- ── TAB 3: INCIDENT REPORT ──────────────────────────────────────── -->
+        <div id="tab-incident" class="tab-content">
+            <div style="height:20px"></div>
+            <h1>⚠️ Transport Incident Report</h1>
+            <p class="subtitle">Report a fallback situation during transport. Gemini AI will provide a structured
+                recovery plan.</p>
+
+            <div class="inline-loading" id="incident-loader">
+                <div class="spinner" style="display:block;border-top-color:#f87171;"></div>
+                <span>Analyzing incident & generating recovery plan...</span>
+            </div>
+
+            <div class="card">
+                <h3>🚨 Report Incident</h3>
+                <div class="input-row">
+                    <div>
+                        <label>Shipment ID</label>
+                        <input id="i-shipment" placeholder="SHP-XXXXXXXX">
+                    </div>
+                    <div>
+                        <label>Vehicle ID</label>
+                        <input id="i-vehicle" placeholder="V2">
+                    </div>
+                </div>
+                <label>Incident Type</label>
+                <select id="i-type">
+                    <option value="PUNCTURE">🔴 Puncture (Flat Tyre)</option>
+                    <option value="BREAKDOWN">🔧 Breakdown (Engine/Mechanical)</option>
+                    <option value="ACCIDENT">💥 Accident / Collision</option>
+                    <option value="ROAD_BLOCK">🚧 Road Block</option>
+                    <option value="WEATHER_HALT">🌧️ Weather Halt</option>
+                    <option value="FUEL_OUT">⛽ Fuel Exhausted</option>
+                    <option value="DRIVER_UNAVAIL">👤 Driver Unavailable</option>
+                    <option value="VEHICLE_THEFT">🔓 Vehicle / Cargo Theft</option>
+                    <option value="OTHER">📋 Other</option>
+                </select>
+                <label>Description</label>
+                <textarea id="i-desc" rows="3" placeholder="Describe what happened..."></textarea>
+                <button class="btn btn-red" id="btn-incident" onclick="reportIncident()">
+                    <div class="spinner"></div><span class="btn-text">⚠️ Report & Get Recovery Plan</span>
+                </button>
+            </div>
+
+            <div id="incident-result" class="result-hidden"></div>
+
+            <!-- Open incidents -->
+            <div class="card" style="margin-top:6px;">
+                <h3>🔓 Open Incidents <button onclick="loadOpenIncidents()"
+                        style="float:right;background:none;border:none;color:#58a6ff;font-size:12px;cursor:pointer;">↻
+                        Refresh</button></h3>
+                <div id="open-incidents-list" style="font-size:13px;color:#8b949e;">Loading...</div>
+            </div>
+        </div>
+
+        <!-- ── TAB 4: SHIPMENTS ────────────────────────────────────────────── -->
+        <div id="tab-shipments" class="tab-content">
+            <div style="height:20px"></div>
+            <h1>📦 All Shipments</h1>
+            <p class="subtitle">Live view of all delivery shipments. <button onclick="loadShipments()"
+                    style="background:none;border:none;color:#58a6ff;font-size:13px;cursor:pointer;">↻ Refresh</button>
+            </p>
+
+            <div id="shipments-wrap">
+                <div class="card">
+                    <p style="color:#8b949e;">Loading shipments...</p>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- .page -->
+
+    <script>
+        // ── Tab switching ──────────────────────────────────────────────────────────
+        function switchTab(id, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + id).classList.add('active');
+            el.classList.add('active');
+            if (id === 'shipments') loadShipments();
+            if (id === 'incident') loadOpenIncidents();
+        }
+
+        // ── Order chip toggle ──────────────────────────────────────────────────────
+        document.querySelectorAll('.chip').forEach(c => {
+            c.addEventListener('click', () => { c.classList.toggle('selected'); updateChipDisplay(); });
+        });
+        function getSelected() { return [...document.querySelectorAll('.chip.selected')].map(c => c.dataset.id); }
+        function updateChipDisplay() {
+            const sel = getSelected();
+            const qty = [...document.querySelectorAll('.chip.selected')].reduce((s, c) => s + Number(c.dataset.qty || 0), 0);
+            document.getElementById('sel-orders').textContent = sel.join(', ') || 'None';
+            document.getElementById('sel-qty').textContent = qty;
+        }
+
+        // ── Loading helpers ────────────────────────────────────────────────────────
+        let isProcessing = false;
+        function setLoad(btnId, loaderId, on, msg) {
+            isProcessing = on;
+            const btn = document.getElementById(btnId);
+            const ldr = document.getElementById(loaderId);
+            document.querySelectorAll('.btn').forEach(b => b.disabled = on);
+            on ? (btn.classList.add('loading'), ldr && ldr.classList.add('show'), msg && (ldr.querySelector('span').textContent = msg))
+                : (btn.classList.remove('loading'), ldr && ldr.classList.remove('show'));
+        }
+
+        // ── Helpers ────────────────────────────────────────────────────────────────
+        function modeClass(m) { return `badge badge-${m || 'standard'}`; }
+        function weatherPill(w) {
+            if (!w) return '<span style="color:#484f58">—</span>';
+            const cls = `risk-${w.risk || 'LOW'}`;
+            const icon = w.icon
+                ? `<img src="${w.icon}" width="20" height="20" style="vertical-align:middle;margin-right:2px;" alt="${w.condition}">`
+                : (w.condition?.includes('Rain') ? '🌧️' : w.condition?.includes('Thunder') ? '⛈️' : w.condition?.includes('Fog') ? '🌫️' : w.condition?.includes('Snow') ? '❄️' : w.condition?.includes('Cloud') ? '☁️' : '☀️');
+            const extra = w.wind_kmh ? ` · ${w.wind_kmh}kph` : '';
+            const rain = w.precip_mm > 0 ? ` · ${w.precip_mm}mm` : '';
+            const mock = w.is_mock ? '<sup style="font-size:9px;color:#484f58"> mock</sup>' : '';
+            return `<span class="weather-pill ${cls}">${icon}${w.condition || '?'} ${w.temp_c ?? '?'}°C${extra}${rain}${mock}</span>`;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        // TAB 1: PLAN
+        // ═══════════════════════════════════════════════════════════════════════════
+        async function planLogistics() {
+            const orders = getSelected();
+            if (!orders.length) { alert('Select at least one order.'); return; }
+            if (isProcessing) return;
+
+            document.getElementById('plan-result').classList.add('result-hidden');
+            document.getElementById('plan-error').classList.add('result-hidden');
+            setLoad('btn-plan', 'plan-loader', true, '🧠 Running AI pipeline: clustering → scoring → route → weather → PIN...');
+
+            try {
+                const res = await fetch('/logistics/plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orders }) });
+                const data = await res.json();
+                if (!res.ok || data.error) { showPlanError(data.error || 'Unknown error'); return; }
+                renderPlan(data);
+            } catch (e) { showPlanError(e.message); }
+            finally { setLoad('btn-plan', 'plan-loader', false); }
+        }
+
+        function showPlanError(msg) {
+            document.getElementById('plan-error-msg').textContent = msg;
+            document.getElementById('plan-error').classList.remove('result-hidden');
+        }
+
+        function renderPlan(d) {
+            // PIN
+            document.getElementById('r-pin').textContent = d.delivery_pin || '????';
+            document.getElementById('r-shipment').textContent = d.shipment_id || '—';
+            // Summary
+            document.getElementById('r-cluster').textContent = d.cluster_id;
+            document.getElementById('r-vehicle').textContent = d.vehicle_id;
+            document.getElementById('r-stops').textContent = d.stops;
+            document.getElementById('r-dist').textContent = (d.total_distance_km || 0) + ' km';
+            document.getElementById('r-mode').innerHTML = `<span class="${modeClass(d.delivery_mode)}">${d.delivery_mode}</span>`;
+            // Route
+            const tb = document.getElementById('route-tbody');
+            const rows = [{ name: '🏭 Warehouse (Start)', lat: 12.9716, lng: 77.5946 }, ...(d.route_order || [])];
+            tb.innerHTML = rows.map((s, i) => `
+            <tr>
+                <td><span class="stop-num">${i === 0 ? '🏁' : i}</span></td>
+                <td>${s.name}</td>
+                <td class="coord">${Number(s.lat).toFixed(4)}</td>
+                <td class="coord">${Number(s.lng).toFixed(4)}</td>
+                <td>${weatherPill(s.weather)}</td>
+            </tr>`).join('');
+            // Reasoning
+            const rl = document.getElementById('reasoning-list');
+            rl.innerHTML = (d.reasoning || ['No reasoning.']).map(r => `<li>${r}</li>`).join('');
+            // Log
+            document.getElementById('r-logid').textContent = d.orchestration_log_id || '—';
+            // Show
+            document.getElementById('plan-result').classList.remove('result-hidden');
+            document.getElementById('plan-result').scrollIntoView({ behavior: 'smooth' });
+            // Auto-fill verify tab
+            if (d.shipment_id) document.getElementById('v-shipment').value = d.shipment_id;
+            if (d.vehicle_id) document.getElementById('i-vehicle').value = d.vehicle_id;
+            if (d.shipment_id) document.getElementById('i-shipment').value = d.shipment_id;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        // TAB 2: VERIFY
+        // ═══════════════════════════════════════════════════════════════════════════
+        async function verifyDelivery() {
+            const shipment_id = document.getElementById('v-shipment').value.trim();
+            const pin = document.getElementById('v-pin').value.trim();
+            const by = document.getElementById('v-by').value.trim() || 'driver';
+            if (!shipment_id || !pin) { alert('Enter Shipment ID and PIN.'); return; }
+
+            setLoad('btn-verify', 'verify-loader', true);
+            try {
+                const res = await fetch('/logistics/delivery/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ shipment_id, pin, verified_by: by }) });
+                const data = await res.json();
+                const el = document.getElementById('verify-result');
+                const ok = data.success;
+                el.innerHTML = `
+                <div class="card" style="border-color:${ok ? 'rgba(63,185,80,.35)' : 'rgba(248,81,73,.35)'};background:${ok ? 'rgba(10,40,15,.5)' : 'rgba(45,10,10,.5)'};">
+                    <h3 style="color:${ok ? '#4ade80' : '#f87171'};">${data.message}</h3>
+                    ${ok ? `<p style="font-size:13px;color:#8b949e;margin-top:8px;">Shipment <code style="color:#58a6ff;">${data.shipment_id}</code> marked <strong style="color:#4ade80;">DELIVERED</strong>.</p>` : ''}
+                </div>`;
+                el.classList.remove('result-hidden');
+            } catch (e) {
+                document.getElementById('verify-result').innerHTML = `<div class="card"><p style="color:#f85149;">${e.message}</p></div>`;
+                document.getElementById('verify-result').classList.remove('result-hidden');
+            } finally { setLoad('btn-verify', 'verify-loader', false); }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        // TAB 3: INCIDENT
+        // ═══════════════════════════════════════════════════════════════════════════
+        const ACTION_COLOR = { CONTINUE: '#4ade80', REROUTE: '#58a6ff', REPLACE_VEHICLE: '#a855f7', ABORT: '#f87171', WAIT: '#fbbf24' };
+        const ACTION_ICON = { CONTINUE: '✅', REROUTE: '🔀', REPLACE_VEHICLE: '🚐', ABORT: '🛑', WAIT: '⏳' };
+
+        async function reportIncident() {
+            const body = {
+                shipment_id: document.getElementById('i-shipment').value.trim(),
+                vehicle_id: document.getElementById('i-vehicle').value.trim(),
+                incident_type: document.getElementById('i-type').value,
+                description: document.getElementById('i-desc').value.trim(),
+            };
+            for (const k of ['shipment_id', 'vehicle_id', 'description']) {
+                if (!body[k]) { alert(`Please fill in: ${k}`); return; }
+            }
+            setLoad('btn-incident', 'incident-loader', true, '🧠 Analyzing incident & generating recovery plan...');
+            document.getElementById('incident-result').classList.add('result-hidden');
+
+            try {
+                const res = await fetch('/logistics/incident/report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+
+                const col = ACTION_COLOR[data.action] || '#8b949e';
+                const icn = ACTION_ICON[data.action] || '❓';
+                const el = document.getElementById('incident-result');
+                el.innerHTML = `
+            <div class="card" style="border-color:${col}33;">
+                <h3>Recovery Plan — Incident <code style="color:#58a6ff;">${data.incident_id}</code></h3>
+                <div class="recovery-panel recovery-${data.action}">
+                    <div class="recovery-action" style="color:${col};">${icn} ${data.action} — Delay: ~${data.estimated_delay_min} min</div>
+                    <div style="font-size:13px;color:#8b949e;margin-bottom:8px;">${data.summary || ''}</div>
+                    ${(data.steps || []).map(s => `<div class="recovery-step">→ ${s}</div>`).join('')}
+                    <div style="margin-top:10px;font-size:12px;color:${data.notify_customer ? '#fbbf24' : '#8b949e'};">
+                        ${data.notify_customer ? '📱 Customer notification recommended.' : 'No customer notification required.'}
+                    </div>
+                </div>
+                <div style="margin-top:10px;">
+                    <button class="btn btn-blue" style="margin-top:8px;width:auto;padding:8px 16px;font-size:13px;" onclick="resolveIncident('${data.incident_id}',this)">
+                        Mark as Resolved
+                    </button>
+                </div>
+            </div>`;
+                el.classList.remove('result-hidden');
+                loadOpenIncidents();
+            } catch (e) {
+                const el = document.getElementById('incident-result');
+                el.innerHTML = `<div class="card"><p style="color:#f85149;">${e.message}</p></div>`;
+                el.classList.remove('result-hidden');
+            } finally { setLoad('btn-incident', 'incident-loader', false); }
+        }
+
+        async function resolveIncident(id, btn) {
+            btn.disabled = true; btn.textContent = 'Resolving...';
+            try {
+                const res = await fetch('/logistics/incident/resolve', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ incident_id: id }) });
+                const data = await res.json();
+                btn.textContent = data.success ? '✅ Resolved' : '❌ Failed';
+                loadOpenIncidents();
+            } catch { btn.textContent = '❌ Error'; }
+        }
+
+        async function loadOpenIncidents() {
+            const el = document.getElementById('open-incidents-list');
+            try {
+                const res = await fetch('/logistics/incidents/open');
+                const data = await res.json();
+                if (!data.length) { el.textContent = 'No open incidents.'; return; }
+                el.innerHTML = data.map(i => `
+                <div style="padding:10px;margin-bottom:8px;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:8px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="color:#f87171;font-weight:600;">${i.incident_id}</span>
+                        <span style="font-size:11px;color:#8b949e;">${i.reported_at}</span>
+                    </div>
+                    <div style="font-size:12px;color:#c9d1d9;margin-top:4px;">${i.incident_type} — ${i.description}</div>
+                    <button onclick="resolveIncident('${i.incident_id}',this)" style="margin-top:8px;padding:4px 12px;background:none;border:1px solid rgba(88,166,255,.3);border-radius:6px;color:#58a6ff;font-size:12px;cursor:pointer;">
+                        Mark Resolved
+                    </button>
+                </div>`).join('');
+            } catch { el.textContent = 'Failed to load.'; }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        // TAB 4: SHIPMENTS
+        // ═══════════════════════════════════════════════════════════════════════════
+        async function loadShipments() {
+            const wrap = document.getElementById('shipments-wrap');
+            wrap.innerHTML = '<div class="card"><p style="color:#8b949e;">Loading...</p></div>';
+            try {
+                const res = await fetch('/logistics/shipments');
+                const data = await res.json();
+                if (!data.length) { wrap.innerHTML = '<div class="card"><p style="color:#8b949e;">No shipments yet.</p></div>'; return; }
+                wrap.innerHTML = `
+            <div class="card">
+                <h3>All Shipments (${data.length})</h3>
+                <table class="stbl">
+                    <thead><tr><th>Shipment ID</th><th>Cluster</th><th>Vehicle</th><th>PIN</th><th>Status</th><th>Created</th><th>Delivered</th></tr></thead>
+                    <tbody>
+                        ${data.reverse().map(s => `
+                        <tr>
+                            <td><code style="color:#58a6ff;font-size:11px;">${s.shipment_id}</code></td>
+                            <td style="color:#8b949e;">${s.cluster_id}</td>
+                            <td>${s.vehicle_id}</td>
+                            <td><code style="color:#4ade80;font-size:14px;letter-spacing:4px;">${s.delivery_pin}</code></td>
+                            <td><span class="status-${s.status}" style="font-weight:600;">${s.status}</span></td>
+                            <td style="font-size:11px;color:#8b949e;">${s.created_at || '—'}</td>
+                            <td style="font-size:11px;color:#4ade80;">${s.delivered_at || '—'}</td>
+                        </tr>`).join('')}
+                    </tbody>
+                </table>
+            </div>`;
+            } catch (e) { wrap.innerHTML = `<div class="card"><p style="color:#f85149;">${e.message}</p></div>`; }
+        }
+
+        // Init
+        updateChipDisplay();
+    </script>
+</body>
+
+</html>

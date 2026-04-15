@@ -1,0 +1,6 @@
+product_id,current_stock,reserved_stock,warehouse_location,last_updated,inventory_type
+C001,15000,1000,WH1,2026-02-15,RAW
+C002,300,20,WH1,2026-02-15,RAW
+C003,30,5,WH2,2026-02-15,RAW
+C004,500,50,WH1,2026-02-15,RAW
+C005,8000,500,WH1,2026-02-15,RAW

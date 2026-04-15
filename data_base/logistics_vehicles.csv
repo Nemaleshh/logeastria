@@ -1,0 +1,7 @@
+vehicle_id,type,capacity_qty,delivery_mode,lat,lng
+V1,Truck,200,standard,12.9716,77.5946
+V2,Van,80,economic,12.9352,77.6245
+V3,Bike,10,express,12.9611,77.6387
+V4,Truck,250,standard,12.9800,77.5800
+V5,Van,90,economic,12.9450,77.6100
+V6,Bike,12,express,12.9550,77.6500

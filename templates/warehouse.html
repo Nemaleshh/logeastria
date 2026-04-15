@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Warehouse Agent — API</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f1117;
+            color: #e1e4e8;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .box {
+            background: rgba(22, 27, 34, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 480px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #f0f6fc;
+            margin-bottom: 12px;
+        }
+
+        p {
+            font-size: 14px;
+            color: #8b949e;
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+
+        .endpoints {
+            text-align: left;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 16px;
+            font-size: 13px;
+        }
+
+        .ep {
+            color: #58a6ff;
+            font-family: monospace;
+            padding: 4px 0;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box">
+        <h1>🏪 Warehouse Agent</h1>
+        <p>This module is accessed via the <strong>LOGISTRIA</strong> mobile app.<br>Below are the available REST API
+            endpoints.</p>
+        <div class="endpoints">
+            <span class="ep">GET /warehouse/capacity</span>
+            <span class="ep">GET /warehouse/inventory</span>
+            <span class="ep">GET /warehouse/finished-goods</span>
+            <span class="ep">GET /warehouse/wip</span>
+            <span class="ep">GET /warehouse/insights</span>
+        </div>
+    </div>
+</body>
+
+</html>

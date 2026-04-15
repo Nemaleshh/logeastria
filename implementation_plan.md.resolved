@@ -1,0 +1,91 @@
+# Warehouse Capacity Enforcement & Supplier Delivery Enhancement
+
+Currently the system lacks:
+1. **Warehouse capacity tracking** — no record of `max_capacity` or `current_occupied` per warehouse
+2. **Capacity checks before ordering/receiving** — stock can be added without checking if warehouse has room
+3. **Supplier delivery stages** — supplier output does not show the 5-stage pipeline or average fulfillment time
+
+---
+
+## Proposed Changes
+
+### Data Files
+
+#### [NEW] [warehouse.csv](file:///c:/Users/hnema/OneDrive/Desktop/yah/data_base/warehouse.csv)
+New CSV tracking capacity per warehouse:
+```
+warehouse_id,max_capacity,current_occupied
+WH1,20000,15950
+WH2,5000,5
+```
+`current_occupied` is pre-computed as the SUM of `current_stock` in [inventory.csv](file:///c:/Users/hnema/OneDrive/Desktop/yah/inventory.csv) for each warehouse.
+
+#### [MODIFY] [supplier_product.csv](file:///c:/Users/hnema/OneDrive/Desktop/yah/data_base/supplier_product.csv)
+Add two columns:
+- `avg_fulfillment_days` — average days from order to delivery (slightly longer than `lead_time_days`)
+- `stages` — comma-separated 5-stage pipeline string: `"Order Placed,Confirmed,In Transit,Out for Delivery,Delivered"`
+
+---
+
+### Inventory Agent
+
+#### [MODIFY] [inventory.py](file:///c:/Users/hnema/OneDrive/Desktop/yah/agents/inventory.py)
+- Add `WarehouseRecord` dataclass (`warehouse_id`, `max_capacity`, `current_occupied`)
+- Add `load_warehouse()` — reads [warehouse.csv](file:///c:/Users/hnema/OneDrive/Desktop/yah/data_base/logistics_warehouse.csv) into `self.warehouse_df`
+- Add `get_warehouse_status()` — returns list of `{warehouse_id, max_capacity, current_occupied, available_space, utilization_pct}`
+- Add `check_warehouse_capacity(warehouse_id, new_stock)` — returns `{can_receive, available_space, max_capacity, current_occupied}`
+
+---
+
+### Reorder Service
+
+#### [MODIFY] [reorder_service.py](file:///c:/Users/hnema/OneDrive/Desktop/yah/services/reorder_service.py)
+- Accept optional `warehouse_df` in [handle_inventory_update()](file:///c:/Users/hnema/OneDrive/Desktop/yah/services/reorder_service.py#58-102)
+- If warehouse_df provided and `recommended_order_quantity > available_space` → cap order quantity to available space and add `warehouse_capacity_check` to payload with a warning
+
+---
+
+### Supplier Agent
+
+#### [MODIFY] [supplier_agent.py](file:///c:/Users/hnema/OneDrive/Desktop/yah/agents/supplier_agent.py)
+- In [generate_output()](file:///c:/Users/hnema/OneDrive/Desktop/yah/agents/supplier_agent.py#311-350), load [supplier_product.csv](file:///c:/Users/hnema/OneDrive/Desktop/yah/data_base/supplier_product.csv) to fetch `avg_fulfillment_days` and `stages` per supplier+product
+- Add `avg_fulfillment_days` and `delivery_stages` (list of 5 stage names) to each supplier dict in `top_suppliers`
+
+---
+
+### Procurement Service
+
+#### [MODIFY] [procurement_service.py](file:///c:/Users/hnema/OneDrive/Desktop/yah/services/procurement_service.py)
+- In [receive_po()](file:///c:/Users/hnema/OneDrive/Desktop/yah/services/procurement_service.py#146-337), before adding to inventory:
+  1. Load [warehouse.csv](file:///c:/Users/hnema/OneDrive/Desktop/yah/data_base/logistics_warehouse.csv)
+  2. Identify the warehouse for the material from [inventory.csv](file:///c:/Users/hnema/OneDrive/Desktop/yah/inventory.csv)
+  3. Check if `current_occupied + received_quantity <= max_capacity`
+  4. If **not**: return error payload with capacity details
+  5. If **yes**: update inventory AND update `current_occupied` in [warehouse.csv](file:///c:/Users/hnema/OneDrive/Desktop/yah/data_base/logistics_warehouse.csv)
+
+---
+
+### Inventory Service & Routes
+
+#### [MODIFY] [inventory_service.py](file:///c:/Users/hnema/OneDrive/Desktop/yah/services/inventory_service.py)
+- Add `get_warehouse_status()` method calling `agent.get_warehouse_status()`
+
+#### [MODIFY] [inventory_routes.py](file:///c:/Users/hnema/OneDrive/Desktop/yah/routes/inventory_routes.py)
+- Add `GET /inventory/warehouse-status` endpoint
+
+---
+
+## Verification Plan
+
+### Manual API Test (via curl or browser)
+
+1. Start the Flask server (it should already be running)
+2. **Check warehouse status:**
+   ```
+   GET http://localhost:5000/inventory/warehouse-status
+   ```
+   Expected: JSON with WH1 (occupied ~15950 of 20000) and WH2 (occupied ~5 of 5000)
+
+3. **Test capacity block:** Use the procurement page to receive a PO with a quantity that would exceed WH1's remaining space (~4050 units free). Receive > 4050 for a WH1 product → should get an error response with capacity details.
+
+4. **Test supplier ranking:** Trigger a reorder (production evaluation) and check the orchestration response includes `avg_fulfillment_days` and `delivery_stages` per supplier.

@@ -1,0 +1,7 @@
+product_id,product_name,category,unit_type,safety_stock,reorder_point,criticality_level
+P001,Car,Finished,unit,5,10,High
+C001,Steel,RawMaterial,kg,500,1000,High
+C002,Tire,RawMaterial,unit,100,200,High
+C003,Engine,RawMaterial,unit,20,50,High
+C004,Paint,RawMaterial,liter,200,400,Medium
+C005,Bolt,RawMaterial,unit,1000,2000,Low

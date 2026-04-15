@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Logistics API Tester</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: monospace;
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #58a6ff;
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+
+        .server {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .server input {
+            padding: 6px 10px;
+            border: 1px solid #30363d;
+            border-radius: 5px;
+            background: #161b22;
+            color: #c9d1d9;
+            font-size: 13px;
+            width: 220px;
+        }
+
+        .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #484f58;
+        }
+
+        .dot.on {
+            background: #3fb950;
+            box-shadow: 0 0 5px #3fb950;
+        }
+
+        .dot.off {
+            background: #f85149;
+        }
+
+        #status-txt {
+            font-size: 12px;
+            color: #8b949e;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 14px;
+        }
+
+        .card h3 {
+            font-size: 12px;
+            color: #f0f6fc;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #21262d;
+            padding-bottom: 8px;
+        }
+
+        label {
+            display: block;
+            font-size: 10px;
+            color: #8b949e;
+            margin: 8px 0 3px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #30363d;
+            border-radius: 5px;
+            background: #0d1117;
+            color: #c9d1d9;
+            font-size: 12px;
+            font-family: monospace;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 52px;
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .chip {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 700;
+            background: rgba(88, 166, 255, .1);
+            border: 1px solid rgba(88, 166, 255, .3);
+            color: #58a6ff;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .chip.on {
+            background: rgba(88, 166, 255, .25);
+            color: #f0f6fc;
+        }
+
+        .qty {
+            font-size: 10px;
+            color: #8b949e;
+            margin-top: 4px;
+        }
+
+        btn {
+            display: none;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 10px;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: filter .2s;
+        }
+
+        button:hover {
+            filter: brightness(1.2);
+        }
+
+        .purple {
+            background: #7c3aed;
+            color: #fff;
+        }
+
+        .green {
+            background: #238636;
+            color: #fff;
+        }
+
+        .red {
+            background: #b91c1c;
+            color: #fff;
+        }
+
+        .blue {
+            background: #1f6feb;
+            color: #fff;
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+        }
+
+        /* log area */
+        .log-wrap {
+            margin-top: 20px;
+        }
+
+        .log-wrap h3 {
+            font-size: 13px;
+            color: #f0f6fc;
+            margin-bottom: 10px;
+        }
+
+        .log-hdr {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .clr {
+            font-size: 11px;
+            background: none;
+            border: 1px solid #30363d;
+            color: #8b949e;
+            border-radius: 5px;
+            padding: 3px 8px;
+            cursor: pointer;
+            width: auto;
+            margin-top: 0;
+        }
+
+        #log {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .entry {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 7px;
+            overflow: hidden;
+        }
+
+        .entry .hdr {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding: 8px 12px;
+            border-bottom: 1px solid #21262d;
+            font-size: 11px;
+        }
+
+        .method {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 700;
+            font-size: 10px;
+        }
+
+        .POST {
+            background: rgba(168, 85, 247, .2);
+            color: #c084fc;
+        }
+
+        .GET {
+            background: rgba(88, 166, 255, .2);
+            color: #58a6ff;
+        }
+
+        .route {
+            color: #58a6ff;
+        }
+
+        .ms {
+            color: #484f58;
+            margin-left: auto;
+        }
+
+        .ok {
+            color: #3fb950;
+        }
+
+        .fail {
+            color: #f85149;
+        }
+
+        .banner {
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .banner.ok {
+            background: rgba(63, 185, 80, .1);
+            color: #3fb950;
+            border-top: 1px solid rgba(63, 185, 80, .25);
+        }
+
+        .banner.fail {
+            background: rgba(248, 81, 73, .1);
+            color: #f85149;
+            border-top: 1px solid rgba(248, 81, 73, .25);
+        }
+
+        .pin-box {
+            padding: 8px 12px;
+            border-top: 1px solid #21262d;
+        }
+
+        .pin-digits {
+            font-size: 28px;
+            letter-spacing: 8px;
+            color: #3fb950;
+        }
+
+        .pin-meta {
+            font-size: 10px;
+            color: #8b949e;
+            margin-top: 2px;
+        }
+
+        .recovery {
+            padding: 8px 12px;
+            border-top: 1px solid #21262d;
+            font-size: 12px;
+        }
+
+        pre {
+            padding: 10px 12px;
+            font-size: 11px;
+            color: #3fb950;
+            line-height: 1.55;
+            overflow-x: auto;
+            border-top: 1px solid #21262d;
+            white-space: pre-wrap;
+        }
+
+        pre.fail {
+            color: #f85149;
+        }
+
+        .empty {
+            color: #484f58;
+            font-size: 12px;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>🚛 Logistics API Tester</h2>
+
+    <!-- Server bar -->
+    <div class="server">
+        <div class="dot" id="dot"></div>
+        <span id="status-txt">checking...</span>
+        <input id="base" value="http://localhost:5000">
+        <button onclick="ping()"
+            style="width:auto;margin:0;padding:5px 12px;background:#21262d;color:#c9d1d9;border:1px solid #30363d;border-radius:5px;font-size:12px;">Ping</button>
+    </div>
+
+    <!-- Cards grid -->
+    <div class="grid">
+
+        <!-- 1. Plan -->
+        <div class="card">
+            <h3>🧠 POST /logistics/plan</h3>
+            <div class="chips" id="chips">
+                <div class="chip on" data-id="O001" data-qty="15">O001·15</div>
+                <div class="chip on" data-id="O002" data-qty="8">O002·8</div>
+                <div class="chip on" data-id="O003" data-qty="20">O003·20</div>
+                <div class="chip" data-id="O004" data-qty="12">O004·12</div>
+                <div class="chip" data-id="O005" data-qty="5">O005·5</div>
+                <div class="chip" data-id="O006" data-qty="30">O006·30</div>
+                <div class="chip" data-id="O007" data-qty="18">O007·18</div>
+                <div class="chip" data-id="O008" data-qty="7">O008·7</div>
+            </div>
+            <div class="qty">Qty: <span id="qty">43</span></div>
+            <button class="purple" id="b-plan" onclick="doPlan()">▶ Run Plan</button>
+        </div>
+
+        <!-- 2. Verify -->
+        <div class="card">
+            <h3>✅ POST /logistics/delivery/verify</h3>
+            <label>Shipment ID (auto-filled after Plan)</label>
+            <input id="v-ship" placeholder="SHP-XXXXXXXX">
+            <label>Customer PIN (4 digits)</label>
+            <input id="v-pin" placeholder="e.g. 4821" maxlength="4" style="font-size:20px;letter-spacing:6px;">
+            <button class="green" id="b-ver" onclick="doVerify()">▶ Verify PIN</button>
+        </div>
+
+        <!-- 3. Incident -->
+        <div class="card">
+            <h3>⚠️ POST /logistics/incident/report</h3>
+            <label>Shipment ID</label>
+            <input id="i-ship" placeholder="SHP-XXXXXXXX">
+            <label>Vehicle ID</label>
+            <input id="i-veh" placeholder="V2">
+            <label>Type</label>
+            <select id="i-type">
+                <option>PUNCTURE</option>
+                <option>BREAKDOWN</option>
+                <option>ACCIDENT</option>
+                <option>ROAD_BLOCK</option>
+                <option>WEATHER_HALT</option>
+                <option>FUEL_OUT</option>
+                <option>DRIVER_UNAVAIL</option>
+                <option>VEHICLE_THEFT</option>
+                <option>OTHER</option>
+            </select>
+            <label>Description</label>
+            <textarea id="i-desc">Front tyre burst on Highway 44.</textarea>
+            <button class="red" id="b-inc" onclick="doIncident()">▶ Report Incident</button>
+        </div>
+
+        <!-- 4. Shipments -->
+        <div class="card">
+            <h3>📦 GET /logistics/shipments</h3>
+            <p style="font-size:11px;color:#8b949e;margin-top:4px;">Returns all shipment records including PINs and
+                statuses.</p>
+            <button class="blue" id="b-ship" onclick="doShipments()">▶ Load Shipments</button>
+        </div>
+
+        <!-- 5. Open Incidents -->
+        <div class="card">
+            <h3>🔓 GET /logistics/incidents/open</h3>
+            <p style="font-size:11px;color:#8b949e;margin-top:4px;">Returns all OPEN transport incidents.</p>
+            <button class="blue" id="b-open" onclick="doOpenInc()">▶ Open Incidents</button>
+        </div>
+
+        <!-- 6. Weather -->
+        <div class="card">
+            <h3>🌦️ GET /logistics/weather</h3>
+            <label>Latitude</label>
+            <input id="w-lat" value="12.9716">
+            <label>Longitude</label>
+            <input id="w-lng" value="77.5946">
+            <button class="blue" id="b-wx" onclick="doWeather()">▶ Get Weather</button>
+        </div>
+
+    </div>
+
+    <!-- Log -->
+    <div class="log-wrap">
+        <div class="log-hdr">
+            <h3>📋 API Response Log</h3>
+            <button class="clr" onclick="clearLog()">✕ Clear</button>
+        </div>
+        <div id="log">
+            <p class="empty">Responses appear here…</p>
+        </div>
+    </div>
+
+    <script>
+        const B = () => document.getElementById('base').value.replace(/\/$/, '');
+
+        // ── ping ────────────────────────────────────────────────────────────────────
+        async function ping() {
+            try {
+                await fetch(B() + '/logistics/shipments', { signal: AbortSignal.timeout(3000) });
+                document.getElementById('dot').className = 'dot on';
+                document.getElementById('status-txt').textContent = '✓ Server online';
+                document.getElementById('status-txt').style.color = '#3fb950';
+            } catch {
+                document.getElementById('dot').className = 'dot off';
+                document.getElementById('status-txt').textContent = '✗ Offline — restart python app.py';
+                document.getElementById('status-txt').style.color = '#f85149';
+            }
+        }
+        ping(); setInterval(ping, 10000);
+
+        // ── chips ───────────────────────────────────────────────────────────────────
+        document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+            c.classList.toggle('on');
+            document.getElementById('qty').textContent = [...document.querySelectorAll('.chip.on')].reduce((s, x) => s + Number(x.dataset.qty || 0), 0);
+        }));
+        function selectedOrders() { return [...document.querySelectorAll('.chip.on')].map(c => c.dataset.id); }
+
+        // ── api call ─────────────────────────────────────────────────────────────────
+        async function call(method, path, body, btnId) {
+            const btn = btnId && document.getElementById(btnId);
+            if (btn) { btn.disabled = true; btn.textContent = '…'; }
+            const t = Date.now();
+            try {
+                const opts = { method, headers: { 'Content-Type': 'application/json' } };
+                if (body) opts.body = JSON.stringify(body);
+                const r = await fetch(B() + path, opts);
+                const data = await r.json();
+                addLog(method, path, r.status, data, Date.now() - t);
+                return { ok: r.ok, data };
+            } catch (e) {
+                addLog(method, path, 0, { error: e.message }, Date.now() - t);
+                return { ok: false, data: { error: e.message } };
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = '▶ ' + path.split('/').pop().replace(/_/g, ' '); }
+            }
+        }
+
+        // ── log ──────────────────────────────────────────────────────────────────────
+        function addLog(method, path, status, data, ms) {
+            const log = document.getElementById('log');
+            if (log.querySelector('.empty')) log.innerHTML = '';
+            const ok = status >= 200 && status < 300;
+
+            let banner = '', extra = '';
+
+            // Plan → show PIN
+            if (path === '/logistics/plan' && data.delivery_pin) {
+                banner = `<div class="pin-box"><div class="pin-digits">${data.delivery_pin}</div><div class="pin-meta">Shipment: ${data.shipment_id} · ${data.stops} stops · ${data.total_distance_km} km · ${data.delivery_mode}</div></div>`;
+            }
+            // Verify
+            if (path === '/logistics/delivery/verify') {
+                banner = `<div class="banner ${data.success ? 'ok' : 'fail'}">${data.message}</div>`;
+            }
+            // Incident
+            if (path === '/logistics/incident/report' && data.action) {
+                const cols = { WAIT: '#fbbf24', REROUTE: '#58a6ff', REPLACE_VEHICLE: '#a855f7', ABORT: '#f85149', CONTINUE: '#3fb950' };
+                const col = cols[data.action] || '#8b949e';
+                extra = `<div class="recovery" style="border-top:1px solid #21262d;"><span style="color:${col};font-weight:700;">${data.action}</span> — ~${data.estimated_delay_min} min · <span style="color:#8b949e;">${data.summary || ''}</span></div>`;
+            }
+
+            const el = document.createElement('div');
+            el.className = 'entry';
+            el.innerHTML = `
+    <div class="hdr">
+      <span class="method ${method}">${method}</span>
+      <span class="route">${path}</span>
+      <span class="${ok ? 'ok' : 'fail'}">${status || 'ERR'}</span>
+      <span class="ms">${ms}ms</span>
+    </div>
+    ${banner}${extra}
+    <pre class="${ok ? '' : 'fail'}">${JSON.stringify(data, null, 2)}</pre>`;
+            log.prepend(el);
+        }
+        function clearLog() { document.getElementById('log').innerHTML = '<p class="empty">Responses appear here…</p>'; }
+
+        // ── actions ──────────────────────────────────────────────────────────────────
+        async function doPlan() {
+            const orders = selectedOrders();
+            if (!orders.length) { alert('Select orders'); return; }
+            document.getElementById('b-plan').textContent = '…';
+            const { ok, data } = await call('POST', '/logistics/plan', { orders }, 'b-plan');
+            if (ok && data.shipment_id) {
+                document.getElementById('v-ship').value = data.shipment_id;
+                document.getElementById('i-ship').value = data.shipment_id;
+                if (data.vehicle_id) document.getElementById('i-veh').value = data.vehicle_id;
+            }
+            document.getElementById('b-plan').textContent = '▶ Run Plan';
+        }
+        async function doVerify() {
+            const shipment_id = document.getElementById('v-ship').value.trim();
+            const pin = document.getElementById('v-pin').value.trim();
+            if (!shipment_id || !pin) { alert('Fill Shipment ID and PIN'); return; }
+            await call('POST', '/logistics/delivery/verify', { shipment_id, pin, verified_by: 'driver' }, 'b-ver');
+            document.getElementById('b-ver').textContent = '▶ Verify PIN';
+        }
+        async function doIncident() {
+            const body = {
+                shipment_id: document.getElementById('i-ship').value.trim(),
+                vehicle_id: document.getElementById('i-veh').value.trim(),
+                incident_type: document.getElementById('i-type').value,
+                description: document.getElementById('i-desc').value.trim()
+            };
+            if (!body.shipment_id || !body.vehicle_id) { alert('Fill Shipment ID and Vehicle ID'); return; }
+            await call('POST', '/logistics/incident/report', body, 'b-inc');
+            document.getElementById('b-inc').textContent = '▶ Report Incident';
+        }
+        async function doShipments() { await call('GET', '/logistics/shipments', null, 'b-ship'); document.getElementById('b-ship').textContent = '▶ Load Shipments'; }
+        async function doOpenInc() { await call('GET', '/logistics/incidents/open', null, 'b-open'); document.getElementById('b-open').textContent = '▶ Open Incidents'; }
+        async function doWeather() {
+            const lat = document.getElementById('w-lat').value;
+            const lng = document.getElementById('w-lng').value;
+            await call('GET', `/logistics/weather?lat=${lat}&lng=${lng}`, null, 'b-wx');
+            document.getElementById('b-wx').textContent = '▶ Get Weather';
+        }
+    </script>
+</body>
+
+</html>

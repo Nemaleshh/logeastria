@@ -1,0 +1,35 @@
+<!-- templates/inventory.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Production Evaluation</title>
+</head>
+<body>
+    <h2>Evaluate Production</h2>
+
+    <input id="productId" placeholder="Product ID">
+    <input id="quantity" type="number" placeholder="Quantity">
+
+    <button onclick="submitData()">Evaluate</button>
+
+    <pre id="result"></pre>
+
+    <script>
+        function submitData() {
+            fetch("/evaluate-production", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    finished_product_id: document.getElementById("productId").value,
+                    quantity_to_produce: parseInt(document.getElementById("quantity").value)
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("result").textContent =
+                    JSON.stringify(data, null, 4);
+            });
+        }
+    </script>
+</body>
+</html>

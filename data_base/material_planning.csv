@@ -1,0 +1,6 @@
+material_id,average_daily_demand,lead_time_days,safety_stock,policy_type,economic_order_quantity
+C001,20,5,30,EOQ,100
+C002,10,7,15,EOQ,200
+C003,5,10,20,EOQ,50
+C004,50,5,100,EOQ,500
+C005,60,7,200,EOQ,500

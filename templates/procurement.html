@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procurement — Purchase Orders</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f1117;
+            color: #e1e4e8;
+            min-height: 100vh;
+        }
+
+        /* ---- Top Nav ---- */
+        .topnav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 32px;
+            background: rgba(22, 27, 34, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topnav .brand {
+            font-weight: 700;
+            font-size: 18px;
+            background: linear-gradient(135deg, #58a6ff, #bc8cff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .topnav .links a {
+            color: #8b949e;
+            text-decoration: none;
+            margin-left: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .topnav .links a:hover,
+        .topnav .links a.active {
+            color: #58a6ff;
+        }
+
+        /* ---- Page ---- */
+        .page {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #f0f6fc;
+        }
+
+        /* ---- Filters ---- */
+        .filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filters button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.04);
+            color: #8b949e;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filters button:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #e1e4e8;
+        }
+
+        .filters button.active {
+            background: rgba(88, 166, 255, 0.15);
+            color: #58a6ff;
+            border-color: rgba(88, 166, 255, 0.3);
+        }
+
+        /* ---- Stats Row ---- */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: rgba(22, 27, 34, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .stat-card .label {
+            font-size: 12px;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .stat-card .value.pending {
+            color: #d29922;
+        }
+
+        .stat-card .value.approved {
+            color: #3fb950;
+        }
+
+        .stat-card .value.rejected {
+            color: #f85149;
+        }
+
+        .stat-card .value.completed {
+            color: #58a6ff;
+        }
+
+        .stat-card .value.total {
+            color: #bc8cff;
+        }
+
+        /* ---- Goods Receipt Card ---- */
+        .receipt-card {
+            background: rgba(22, 27, 34, 0.7);
+            border: 1px solid rgba(88, 166, 255, 0.25);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .receipt-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #58a6ff;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .receipt-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: flex-end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            color: #8b949e;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            background: rgba(1, 4, 9, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e1e4e8;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            width: 180px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+        }
+
+        .btn-receive {
+            background: #238636;
+            color: #ffffff;
+            border: 1px solid rgba(240, 246, 252, 0.1);
+            padding: 9px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-receive:hover {
+            background: #2ea043;
+        }
+
+        .btn-receive:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ---- Score Report Panel ---- */
+        .score-report {
+            margin-top: 16px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: none;
+        }
+
+        .score-report.visible {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .sr-header {
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .sr-header.verdict-green {
+            background: rgba(63, 185, 80, 0.12);
+            color: #3fb950;
+            border-bottom: 1px solid rgba(63, 185, 80, 0.2);
+        }
+
+        .sr-header.verdict-yellow {
+            background: rgba(210, 153, 34, 0.12);
+            color: #d29922;
+            border-bottom: 1px solid rgba(210, 153, 34, 0.2);
+        }
+
+        .sr-header.verdict-orange {
+            background: rgba(248, 130, 48, 0.12);
+            color: #f08040;
+            border-bottom: 1px solid rgba(248, 130, 48, 0.2);
+        }
+
+        .sr-header.verdict-red {
+            background: rgba(248, 81, 73, 0.12);
+            color: #f85149;
+            border-bottom: 1px solid rgba(248, 81, 73, 0.2);
+        }
+
+        .sr-body {
+            background: rgba(13, 17, 23, 0.8);
+            padding: 16px 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .sr-section h4 {
+            font-size: 11px;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .sr-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 13px;
+        }
+
+        .sr-metric:last-child {
+            border-bottom: none;
+        }
+
+        .sr-metric .mname {
+            color: #8b949e;
+        }
+
+        .sr-metric .mval {
+            font-weight: 600;
+        }
+
+        .delta-positive {
+            color: #3fb950;
+        }
+
+        .delta-negative {
+            color: #f85149;
+        }
+
+        .delta-neutral {
+            color: #8b949e;
+        }
+
+        /* ---- Table ---- */
+        .table-wrap {
+            background: rgba(22, 27, 34, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            text-align: left;
+            padding: 14px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.02);
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 12px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+            cursor: pointer;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* ---- Badges ---- */
+        .badge {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .badge.pending {
+            background: rgba(210, 153, 34, 0.15);
+            color: #d29922;
+        }
+
+        .badge.approved {
+            background: rgba(63, 185, 80, 0.15);
+            color: #3fb950;
+        }
+
+        .badge.rejected {
+            background: rgba(248, 81, 73, 0.15);
+            color: #f85149;
+        }
+
+        .badge.completed {
+            background: rgba(88, 166, 255, 0.15);
+            color: #58a6ff;
+        }
+
+        .badge.risk-low {
+            background: rgba(63, 185, 80, 0.12);
+            color: #3fb950;
+        }
+
+        .badge.risk-medium {
+            background: rgba(210, 153, 34, 0.12);
+            color: #d29922;
+        }
+
+        .badge.risk-high {
+            background: rgba(248, 130, 48, 0.12);
+            color: #f08040;
+        }
+
+        .badge.risk-critical {
+            background: rgba(248, 81, 73, 0.12);
+            color: #f85149;
+        }
+
+        /* ---- Action Buttons ---- */
+        .action-btn {
+            padding: 5px 12px;
+            border-radius: 6px;
+            border: none;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            margin-right: 5px;
+            white-space: nowrap;
+        }
+
+        .action-btn.approve {
+            background: rgba(63, 185, 80, 0.15);
+            color: #3fb950;
+            border: 1px solid rgba(63, 185, 80, 0.3);
+        }
+
+        .action-btn.approve:hover {
+            background: rgba(63, 185, 80, 0.3);
+        }
+
+        .action-btn.reject {
+            background: rgba(248, 81, 73, 0.1);
+            color: #f85149;
+            border: 1px solid rgba(248, 81, 73, 0.25);
+        }
+
+        .action-btn.reject:hover {
+            background: rgba(248, 81, 73, 0.25);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* ---- Detail Cell ---- */
+        .detail-text {
+            max-width: 200px;
+            font-size: 12px;
+            color: #8b949e;
+            line-height: 1.5;
+        }
+
+        /* ---- Delivery date ---- */
+        .delivery-date {
+            color: #58a6ff;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .delivery-dash {
+            color: #484f58;
+        }
+
+        /* ---- Empty state ---- */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #484f58;
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .empty-state .msg {
+            font-size: 15px;
+        }
+
+        /* ---- Toast ---- */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: all 0.3s;
+            z-index: 200;
+            max-width: 360px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.success {
+            background: rgba(63, 185, 80, 0.15);
+            color: #3fb950;
+            border: 1px solid rgba(63, 185, 80, 0.3);
+        }
+
+        .toast.error {
+            background: rgba(248, 81, 73, 0.15);
+            color: #f85149;
+            border: 1px solid rgba(248, 81, 73, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* ---- Highlight row ---- */
+        tr.highlight-row {
+            background: rgba(88, 166, 255, 0.06) !important;
+        }
+
+        @media (max-width: 900px) {
+            .stats-row {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .sr-body {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Top Navigation -->
+    <nav class="topnav">
+        <div class="brand">⚙ ERP Supply Chain</div>
+        <div class="links">
+            <a href="/">Inventory</a>
+            <a href="/production">Production</a>
+            <a href="/procurement" class="active">Procurement</a>
+            <a href="/logistics">Logistics</a>
+        </div>
+    </nav>
+
+    <div class="page">
+
+        <!-- Header + Filters -->
+        <div class="page-header">
+            <h1>Purchase Orders</h1>
+            <div class="filters">
+                <button class="active" data-filter="ALL" onclick="setFilter('ALL',this)">All</button>
+                <button data-filter="PENDING" onclick="setFilter('PENDING',this)">Pending</button>
+                <button data-filter="APPROVED" onclick="setFilter('APPROVED',this)">Approved</button>
+                <button data-filter="REJECTED" onclick="setFilter('REJECTED',this)">Rejected</button>
+                <button data-filter="COMPLETED" onclick="setFilter('COMPLETED',this)">Completed</button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row" id="stats-row">
+            <div class="stat-card">
+                <div class="label">Total Orders</div>
+                <div class="value total" id="stat-total">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Pending</div>
+                <div class="value pending" id="stat-pending">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Approved</div>
+                <div class="value approved" id="stat-approved">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Rejected</div>
+                <div class="value rejected" id="stat-rejected">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Completed</div>
+                <div class="value completed" id="stat-completed">0</div>
+            </div>
+        </div>
+
+        <!-- Goods Receipt Section -->
+        <div class="receipt-card">
+            <h3>📦 Goods Receipt — Receive Approved Shipment</h3>
+            <form class="receipt-form" id="receipt-form" onsubmit="handleReceiptSubmit(event)">
+                <div class="form-group">
+                    <label>PO ID (must be APPROVED)</label>
+                    <input type="text" id="receipt-po-id" placeholder="e.g. PO-ABC123" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>Quantity Received</label>
+                    <input type="number" id="receipt-qty" placeholder="Actual units" required min="1" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>Delay Days</label>
+                    <input type="number" id="receipt-delay" placeholder=">0 late, <0 early" value="0" step="1">
+                </div>
+                <div class="form-group">
+                    <label>Shipment Quality</label>
+                    <select id="receipt-quality">
+                        <option value="false">✅ Acceptable / High</option>
+                        <option value="true">❌ Defective / Low</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-receive" id="btn-receive">Receive Shipment</button>
+            </form>
+
+            <!-- Supplier Score Report (visible after receipt) -->
+            <div class="score-report" id="score-report">
+                <div class="sr-header" id="sr-header"></div>
+                <div class="sr-body">
+                    <div class="sr-section">
+                        <h4>📊 Supplier Performance Metrics</h4>
+                        <div id="sr-performance"></div>
+                    </div>
+                    <div class="sr-section">
+                        <h4>📦 Inventory & Reliability</h4>
+                        <div id="sr-reliability"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>PO ID</th>
+                        <th>Production</th>
+                        <th>Material</th>
+                        <th>Supplier</th>
+                        <th>Ordered Qty</th>
+                        <th>Exp. Delivery</th>
+                        <th>Risk</th>
+                        <th>Confidence</th>
+                        <th>Status</th>
+                        <th>Reasoning</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="po-table-body"></tbody>
+            </table>
+            <div class="empty-state" id="empty-state" style="display:none;">
+                <div class="icon">📦</div>
+                <div class="msg">No purchase orders match this filter.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let currentFilter = "ALL";
+        let allOrders = [];
+
+        // ── Load orders ──────────────────────────────────────────────────────────
+        async function loadOrders() {
+            try {
+                const res = await fetch("/procurement/orders");
+                if (!res.ok) throw new Error("HTTP " + res.status);
+                allOrders = await res.json();
+                renderOrders();
+                renderStats();
+            } catch (e) {
+                showToast("Failed to load orders: " + e.message, "error");
+            }
+        }
+
+        // ── Render table ─────────────────────────────────────────────────────────
+        function renderOrders() {
+            const tbody = document.getElementById("po-table-body");
+            const empty = document.getElementById("empty-state");
+            const filtered = currentFilter === "ALL"
+                ? allOrders
+                : allOrders.filter(o => o.status === currentFilter);
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = "";
+                empty.style.display = "block";
+                return;
+            }
+            empty.style.display = "none";
+
+            tbody.innerHTML = filtered.map(o => `
+                <tr class="fade-in" onclick="fillPoId('${o.po_id}', '${o.status}')">
+                    <td><code style="color:#58a6ff;font-size:12px">${o.po_id || ''}</code></td>
+                    <td style="color:#8b949e">${o.production_id || ''}</td>
+                    <td><strong>${o.material_id || ''}</strong></td>
+                    <td>${o.selected_supplier || ''}</td>
+                    <td><strong>${formatQty(o.quantity_to_order)}</strong></td>
+                    <td>${deliveryCell(o)}</td>
+                    <td>${riskBadge(o.risk_level)}</td>
+                    <td style="color:#bc8cff">${formatConf(o.confidence_level)}</td>
+                    <td>${statusBadge(o.status)}</td>
+                    <td><div class="detail-text">${o.reasoning || ''}</div></td>
+                    <td>${actionButtons(o)}</td>
+                </tr>
+            `).join("");
+        }
+
+        // ── Stats ────────────────────────────────────────────────────────────────
+        function renderStats() {
+            document.getElementById("stat-total").textContent = allOrders.length;
+            document.getElementById("stat-pending").textContent = allOrders.filter(o => o.status === "PENDING").length;
+            document.getElementById("stat-approved").textContent = allOrders.filter(o => o.status === "APPROVED").length;
+            document.getElementById("stat-rejected").textContent = allOrders.filter(o => o.status === "REJECTED").length;
+            document.getElementById("stat-completed").textContent = allOrders.filter(o => o.status === "COMPLETED").length;
+        }
+
+        // ── Helpers ──────────────────────────────────────────────────────────────
+        function formatQty(v) {
+            if (v === "" || v === null || v === undefined) return "—";
+            return parseFloat(v).toLocaleString();
+        }
+
+        function formatConf(v) {
+            if (v === "" || v === null || v === undefined) return "—";
+            return (parseFloat(v) * 100).toFixed(1) + "%";
+        }
+
+        function deliveryCell(o) {
+            if (o.expected_delivery_date && o.expected_delivery_date !== "") {
+                return `<span class="delivery-date">📅 ${o.expected_delivery_date}</span>`;
+            }
+            return o.status === "APPROVED"
+                ? `<span style="color:#d29922;font-size:12px">Calculating…</span>`
+                : `<span class="delivery-dash">—</span>`;
+        }
+
+        // Convert numeric float risk → Low / Medium / High / Critical + badge
+        function riskBadge(risk) {
+            if (risk === "" || risk === null || risk === undefined) return "—";
+            const val = parseFloat(risk);
+            if (isNaN(val)) {
+                // Already a string label
+                const cls = String(risk).toLowerCase().replace(/[\s_]+/g, '-');
+                return `<span class="badge risk-${cls}">${risk}</span>`;
+            }
+            let label, cls;
+            if (val < 0.3) { label = "Low"; cls = "risk-low"; }
+            else if (val < 0.55) { label = "Medium"; cls = "risk-medium"; }
+            else if (val < 0.75) { label = "High"; cls = "risk-high"; }
+            else { label = "Critical"; cls = "risk-critical"; }
+            return `<span class="badge ${cls}" title="Risk score: ${val.toFixed(3)}">${label}</span>`;
+        }
+
+        function statusBadge(status) {
+            const cls = (status || "").toLowerCase();
+            return `<span class="badge ${cls}">${status || ''}</span>`;
+        }
+
+        function actionButtons(order) {
+            if (order.status === "PENDING") {
+                return `
+                    <button class="action-btn approve" onclick="event.stopPropagation(); updatePO('${order.po_id}','approve')">✓ Approve</button>
+                    <button class="action-btn reject"  onclick="event.stopPropagation(); updatePO('${order.po_id}','reject')">✗ Reject</button>
+                `;
+            }
+            return `<span style="color:#484f58;font-size:12px">—</span>`;
+        }
+
+        // Auto-fill PO ID when a row is clicked (only for APPROVED orders)
+        function fillPoId(poId, status) {
+            if (status === "APPROVED") {
+                document.getElementById("receipt-po-id").value = poId;
+                document.getElementById("receipt-po-id").focus();
+                document.getElementById("receipt-po-id").scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+        }
+
+        // ── Approve / Reject ─────────────────────────────────────────────────────
+        async function updatePO(poId, action) {
+            try {
+                const res = await fetch(`/procurement/${action}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ po_id: poId })
+                });
+                const data = await res.json();
+                if (data.status === "SUCCESS") {
+                    showToast(`PO ${poId} ${action}d successfully`, "success");
+                    loadOrders();
+                } else {
+                    showToast(data.message || "Action failed", "error");
+                }
+            } catch (e) {
+                showToast("Network error", "error");
+            }
+        }
+
+        // ── Goods Receipt Submission ─────────────────────────────────────────────
+        async function handleReceiptSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById("btn-receive");
+            const poId = document.getElementById("receipt-po-id").value.trim();
+            const qty = document.getElementById("receipt-qty").value;
+            const delay = document.getElementById("receipt-delay").value;
+            const lowQual = document.getElementById("receipt-quality").value === "true";
+
+            if (!poId || !qty) return;
+
+            btn.textContent = "Processing…";
+            btn.disabled = true;
+
+            // Hide previous report
+            document.getElementById("score-report").classList.remove("visible");
+
+            try {
+                const res = await fetch("/procurement/receive", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        po_id: poId,
+                        received_quantity: parseFloat(qty),
+                        delay_days: parseFloat(delay),
+                        low_quality: lowQual
+                    })
+                });
+                const data = await res.json();
+
+                if (data.status === "SUCCESS") {
+                    showToast("✅ " + data.message, "success");
+                    document.getElementById("receipt-form").reset();
+                    loadOrders();
+                    if (data.score_report) renderScoreReport(data.score_report);
+                } else {
+                    showToast("❌ " + (data.message || "Receipt failed"), "error");
+                }
+            } catch (err) {
+                showToast("Network error during receipt", "error");
+            } finally {
+                btn.textContent = "Receive Shipment";
+                btn.disabled = false;
+            }
+        }
+
+        // ── Supplier Score Report panel ──────────────────────────────────────────
+        function renderScoreReport(sr) {
+            const panel = document.getElementById("score-report");
+
+            // Verdict color class
+            const verdictMap = {
+                "ON_TIME": { cls: "verdict-green", icon: "✅" },
+                "EARLY": { cls: "verdict-green", icon: "🚀" },
+                "MINOR_DELAY": { cls: "verdict-yellow", icon: "⚠️" },
+                "DELAYED": { cls: "verdict-yellow", icon: "⏱️" },
+                "QUALITY_ISSUE": { cls: "verdict-orange", icon: "⚠️" },
+                "CRITICAL": { cls: "verdict-red", icon: "🚨" },
+            };
+            const v = verdictMap[sr.shipment_verdict] || { cls: "verdict-yellow", icon: "📋" };
+
+            const headerEl = document.getElementById("sr-header");
+            headerEl.className = `sr-header ${v.cls}`;
+
+            const delayStr = sr.delay_days > 0
+                ? `${sr.delay_days} days late`
+                : sr.delay_days < 0
+                    ? `${Math.abs(sr.delay_days)} days early`
+                    : "on time";
+
+            headerEl.innerHTML = `
+                <span style="font-size:20px">${v.icon}</span>
+                <div>
+                    <div>Shipment for <strong>${sr.material_id}</strong> from <strong>${sr.supplier_id}</strong></div>
+                    <div style="font-size:12px;font-weight:400;margin-top:2px;opacity:0.8">
+                        ${sr.shipment_verdict.replace(/_/g, " ")} — arrived ${delayStr} — quality: ${sr.low_quality ? "❌ Defective" : "✅ Acceptable"}
+                    </div>
+                </div>
+            `;
+
+            // Performance metrics
+            const perf = sr.performance_before && Object.keys(sr.performance_before).length > 0
+                ? sr
+                : null;
+
+            const perfEl = document.getElementById("sr-performance");
+            if (perf) {
+                const before = sr.performance_before;
+                const after = sr.performance_after;
+
+                perfEl.innerHTML = [
+                    {
+                        name: "On-Time Delivery Rate",
+                        before: (before.on_time_delivery_rate * 100).toFixed(1) + "%",
+                        after: (after.on_time_delivery_rate * 100).toFixed(1) + "%",
+                        delta: after.on_time_delivery_rate - before.on_time_delivery_rate,
+                        higherBetter: true,
+                    },
+                    {
+                        name: "Avg Delay (days)",
+                        before: before.average_delay_days.toFixed(2),
+                        after: after.average_delay_days.toFixed(2),
+                        delta: after.average_delay_days - before.average_delay_days,
+                        higherBetter: false,
+                    },
+                    {
+                        name: "Defect Rate",
+                        before: (before.defect_rate * 100).toFixed(1) + "%",
+                        after: (after.defect_rate * 100).toFixed(1) + "%",
+                        delta: after.defect_rate - before.defect_rate,
+                        higherBetter: false,
+                    },
+                ].map(m => metricRow(m)).join("");
+            } else {
+                perfEl.innerHTML = `<div style="color:#484f58;font-size:13px">No prior performance data found.</div>`;
+            }
+
+            // Reliability + Inventory
+            const relEl = document.getElementById("sr-reliability");
+            const rel = sr.reliability_score || {};
+            const inv = sr.inventory_updated || {};
+
+            let relHTML = "";
+            if (rel.before !== null && rel.before !== undefined) {
+                const rdelta = (rel.after - rel.before);
+                const rcls = rdelta > 0 ? "delta-positive" : rdelta < 0 ? "delta-negative" : "delta-neutral";
+                const rarrow = rdelta > 0 ? "▲" : rdelta < 0 ? "▼" : "—";
+                relHTML = `
+                    <div class="sr-metric">
+                        <span class="mname">Reliability Score</span>
+                        <span class="mval">
+                            ${rel.before.toFixed(3)} → <strong>${rel.after.toFixed(3)}</strong>
+                            <span class="${rcls}" style="margin-left:6px;font-size:12px">${rarrow} ${Math.abs(rdelta).toFixed(3)}</span>
+                        </span>
+                    </div>
+                `;
+            } else {
+                relHTML = `<div class="sr-metric"><span class="mname">Reliability Score</span><span class="mval delta-neutral">No data</span></div>`;
+            }
+
+            relHTML += `
+                <div class="sr-metric">
+                    <span class="mname">Material Updated</span>
+                    <span class="mval">${inv.material_id || "—"}</span>
+                </div>
+                <div class="sr-metric">
+                    <span class="mname">Units Added</span>
+                    <span class="mval delta-positive">+${(inv.added_qty || 0).toLocaleString()}</span>
+                </div>
+                <div class="sr-metric">
+                    <span class="mname">New Stock Level</span>
+                    <span class="mval" style="color:#58a6ff">${(inv.new_stock || 0).toLocaleString()} units</span>
+                </div>
+            `;
+            relEl.innerHTML = relHTML;
+
+            panel.classList.add("visible");
+        }
+
+        function metricRow({ name, before, after, delta, higherBetter }) {
+            let cls, arrow;
+            const improved = higherBetter ? delta > 0 : delta < 0;
+            const worsened = higherBetter ? delta < 0 : delta > 0;
+            if (improved) { cls = "delta-positive"; arrow = "▲"; }
+            else if (worsened) { cls = "delta-negative"; arrow = "▼"; }
+            else { cls = "delta-neutral"; arrow = "—"; }
+
+            return `
+                <div class="sr-metric">
+                    <span class="mname">${name}</span>
+                    <span class="mval">
+                        ${before} → <strong>${after}</strong>
+                        <span class="${cls}" style="margin-left:6px;font-size:11px">${arrow}</span>
+                    </span>
+                </div>
+            `;
+        }
+
+        // ── Filter ───────────────────────────────────────────────────────────────
+        function setFilter(filter, btn) {
+            currentFilter = filter;
+            document.querySelectorAll(".filters button").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            renderOrders();
+        }
+
+        // ── Toast ────────────────────────────────────────────────────────────────
+        function showToast(msg, type) {
+            const el = document.getElementById("toast");
+            el.textContent = msg;
+            el.className = `toast ${type} show`;
+            setTimeout(() => el.classList.remove("show"), 4000);
+        }
+
+        // ── Init ─────────────────────────────────────────────────────────────────
+        loadOrders();
+        setInterval(loadOrders, 15000); // auto-refresh every 15s
+    </script>
+
+</body>
+
+</html>

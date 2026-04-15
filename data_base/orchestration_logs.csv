@@ -1,0 +1,2 @@
+request_id,product_id,decision_summary,overall_risk,timestamp
+ab2646eb-2779-4f25-8494-0bbe44c90c58,FG-1001,"The procurement strategy for Order PO-2026-001 focuses on resilience by selecting suppliers with the highest available confidence scores. RM-01 is secured through a low-risk supplier, while RM-02 is managed through SUP-C. The primary risk factor is the single-source dependency for RM-02, requiring active monitoring to ensure production continuity.",Low-to-Medium,2026-02-21 15:04:22.075440

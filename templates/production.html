@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Execution</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f1117;
+            color: #e1e4e8;
+            min-height: 100vh;
+        }
+
+        /* ---- Top Nav ---- */
+        .topnav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 32px;
+            background: rgba(22, 27, 34, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topnav .brand {
+            font-weight: 700;
+            font-size: 18px;
+            background: linear-gradient(135deg, #58a6ff, #bc8cff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .topnav .links a {
+            color: #8b949e;
+            text-decoration: none;
+            margin-left: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .topnav .links a:hover,
+        .topnav .links a.active {
+            color: #58a6ff;
+        }
+
+        /* ---- Page ---- */
+        .page {
+            max-width: 620px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .page h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #f0f6fc;
+            margin-bottom: 24px;
+        }
+
+        /* ---- Cards ---- */
+        .card {
+            background: rgba(22, 27, 34, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #f0f6fc;
+        }
+
+        /* ---- Inputs ---- */
+        input,
+        select {
+            width: 100%;
+            padding: 10px 14px;
+            margin-top: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            color: #e1e4e8;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: rgba(88, 166, 255, 0.5);
+        }
+
+        input::placeholder {
+            color: #484f58;
+        }
+
+        /* ---- Button ---- */
+        .btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #238636, #2ea043);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2ea043, #3fb950);
+        }
+
+        .btn-blue {
+            background: linear-gradient(135deg, #1f6feb, #388bfd);
+            color: #fff;
+        }
+
+        .btn-blue:hover {
+            background: linear-gradient(135deg, #388bfd, #58a6ff);
+        }
+
+        .btn-orange {
+            background: linear-gradient(135deg, #9e6a03, #bb8009);
+            color: #fff;
+        }
+
+        .btn-orange:hover {
+            background: linear-gradient(135deg, #bb8009, #d29922);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* ---- Spinner ---- */
+        .spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .btn.loading .spinner {
+            display: inline-block;
+        }
+
+        .btn.loading .btn-text {
+            opacity: 0.7;
+        }
+
+        /* ---- Response Panel ---- */
+        .response-panel {
+            background: rgba(13, 17, 23, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .response-panel h3 {
+            font-size: 14px;
+            color: #8b949e;
+            margin-bottom: 12px;
+        }
+
+        .response-panel pre {
+            background: rgba(0, 0, 0, 0.4);
+            color: #3fb950;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            line-height: 1.6;
+            overflow-x: auto;
+            max-height: 350px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* ---- Rejected Items ---- */
+        .rejected-card {
+            border-color: rgba(210, 153, 34, 0.4);
+            background: rgba(43, 31, 10, 0.3);
+        }
+
+        .rejected-card h3 {
+            color: #d29922;
+        }
+
+        .rejected-item {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(210, 153, 34, 0.2);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .rejected-item .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #8b949e;
+        }
+
+        .rejected-item .title {
+            font-weight: 600;
+            color: #e1e4e8;
+            font-size: 15px;
+            margin-bottom: 12px;
+        }
+
+        .rejected-item pre {
+            background: rgba(13, 17, 23, 0.8);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #a5d6ff;
+            white-space: pre-wrap;
+            word-break: break-word;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* ---- Inline Loading ---- */
+        .inline-loading {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: rgba(31, 111, 235, 0.1);
+            border: 1px solid rgba(31, 111, 235, 0.3);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #58a6ff;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .inline-loading.show {
+            display: flex;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Top Navigation -->
+    <nav class="topnav">
+        <div class="brand">⚙ ERP Supply Chain</div>
+        <div class="links">
+            <a href="/">Inventory</a>
+            <a href="/production" class="active">Production</a>
+            <a href="/procurement">Procurement</a>
+            <a href="/logistics">Logistics</a>
+        </div>
+    </nav>
+
+    <!-- Inline Loading Indicator -->
+    <div class="page">
+        <div class="inline-loading" id="inline-loading">
+            <div class="spinner" style="display: block; border-top-color: #58a6ff;"></div>
+            <span id="loading-msg">Processing... Please wait</span>
+        </div>
+        <h1>Production Execution</h1>
+
+        <!-- Create Production -->
+        <div class="card">
+            <h3>Create Production Order</h3>
+            <input id="prod_id" placeholder="Production ID (e.g. P1)">
+            <input id="order_id" placeholder="Order ID (e.g. O1)">
+            <input id="product_id" placeholder="Product ID (e.g. P001)">
+            <input id="target_qty" type="number" placeholder="Target Quantity">
+            <button class="btn btn-primary" id="btn-create" onclick="createProduction()">
+                <div class="spinner"></div>
+                <span class="btn-text">Create Production</span>
+            </button>
+        </div>
+
+        <!-- Update Stage -->
+        <div class="card">
+            <h3>Update Stage</h3>
+            <input id="stage_prod_id" placeholder="Production ID">
+            <input id="stage_qty" type="number" placeholder="Quantity Completed">
+            <select id="stage">
+                <option value="material-issued">Material Issued</option>
+                <option value="fabrication">Fabrication</option>
+                <option value="assembly">Assembly</option>
+                <option value="painting">Painting</option>
+            </select>
+            <button class="btn btn-blue" id="btn-stage" onclick="updateStage()">
+                <div class="spinner"></div>
+                <span class="btn-text">Update Stage</span>
+            </button>
+        </div>
+
+        <!-- Quality Check -->
+        <div class="card">
+            <h3>Quality Check</h3>
+            <input id="qc_prod_id" placeholder="Production ID">
+            <input id="qc_qty" type="number" placeholder="Quantity Completed">
+            <select id="qc_passed">
+                <option value="true">QC Passed</option>
+                <option value="false">QC Failed</option>
+            </select>
+            <button class="btn btn-orange" id="btn-qc" onclick="qualityCheck()">
+                <div class="spinner"></div>
+                <span class="btn-text">Submit QC</span>
+            </button>
+        </div>
+
+        <!-- Response -->
+        <div class="response-panel">
+            <h3>Response</h3>
+            <pre id="result">Waiting for action...</pre>
+        </div>
+
+        <!-- Rejected Items & Suggestions -->
+        <div class="card rejected-card">
+            <h3>🚫 Rejected Items & Recovery Suggestions</h3>
+            <div id="rejected-container">
+                <p style="color: #8b949e; font-size: 14px;">Loading rejected items...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ---- State ----
+        let isProcessing = false;
+
+        // ---- Helpers ----
+        function setLoading(btnId, loading, msg) {
+            const btn = document.getElementById(btnId);
+            const inlineLoader = document.getElementById("inline-loading");
+            const loadingMsgEl = document.getElementById("loading-msg");
+
+            // Disable ALL buttons
+            document.querySelectorAll(".btn").forEach(b => b.disabled = loading);
+
+            if (loading) {
+                btn.classList.add("loading");
+                if (msg) loadingMsgEl.textContent = msg;
+                inlineLoader.classList.add("show");
+                isProcessing = true;
+            } else {
+                btn.classList.remove("loading");
+                inlineLoader.classList.remove("show");
+                isProcessing = false;
+            }
+        }
+
+        function showResult(data) {
+            document.getElementById("result").textContent =
+                JSON.stringify(data, null, 2);
+        }
+
+        async function apiCall(btnId, url, body, overlayMsg) {
+            if (isProcessing) return; // prevent double submit
+
+            setLoading(btnId, true, overlayMsg);
+
+            try {
+                const res = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                showResult(data);
+            } catch (e) {
+                showResult({ status: "ERROR", message: e.message });
+            } finally {
+                setLoading(btnId, false);
+            }
+        }
+
+        // ---- Actions ----
+        function createProduction() {
+            apiCall("btn-create", "/production/create", {
+                production_id: prod_id.value,
+                order_id: order_id.value,
+                product_id: product_id.value,
+                target_quantity: Number(target_qty.value)
+            }, "Creating production order...");
+        }
+
+        function updateStage() {
+            const stage = document.getElementById("stage").value;
+            const label = stage === "material-issued"
+                ? "Issuing materials & evaluating supply chain..."
+                : "Updating stage...";
+
+            apiCall("btn-stage", `/production/${stage}`, {
+                production_id: stage_prod_id.value,
+                quantity_completed: Number(stage_qty.value)
+            }, label);
+        }
+
+        async function qualityCheck() {
+            await apiCall("btn-qc", "/production/quality-check", {
+                production_id: qc_prod_id.value,
+                quantity_completed: Number(qc_qty.value),
+                qc_passed: qc_passed.value === "true"
+            }, "Running quality check...");
+
+            // Refresh rejected items if we submitted a failure
+            if (qc_passed.value === "false") {
+                fetchRejectedItems();
+            }
+        }
+
+        async function fetchRejectedItems() {
+            try {
+                const res = await fetch("/production/rejected");
+                const data = await res.json();
+                const container = document.getElementById("rejected-container");
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<p style="color: #8b949e; font-size: 14px;">No rejected items found.</p>';
+                    return;
+                }
+
+                container.innerHTML = data.reverse().map(item => `
+                    <div class="rejected-item">
+                        <div class="header">
+                            <span>Prod ID: ${item.production_id}</span>
+                            <span>${new Date(item.timestamp).toLocaleString()}</span>
+                        </div>
+                        <div class="title">Product ${item.product_id} (${item.quantity_failed} failed)</div>
+                        <div style="font-size: 13px; color: #8b949e; margin-bottom: 6px;">LLM Recovery Suggestions:</div>
+                        <pre>${typeof item.llm_suggestions === 'object' ? JSON.stringify(item.llm_suggestions, null, 2) : item.llm_suggestions || 'No suggestions available.'}</pre>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error("Failed to fetch rejected items", e);
+            }
+        }
+
+        // Load rejected items on page load
+        document.addEventListener("DOMContentLoaded", fetchRejectedItems);
+    </script>
+
+</body>
+
+</html>

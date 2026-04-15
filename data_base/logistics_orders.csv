@@ -1,0 +1,9 @@
+order_id,customer_id,qty,priority
+O001,C001,15,high
+O002,C002,8,medium
+O003,C003,20,high
+O004,C004,12,low
+O005,C005,5,medium
+O006,C006,30,high
+O007,C007,18,low
+O008,C008,7,medium

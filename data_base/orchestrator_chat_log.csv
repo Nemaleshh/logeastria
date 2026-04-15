@@ -1,0 +1,64 @@
+message_id,user_query,analysis,risk_level,confidence_score,timestamp
+25ab5600-87e3-4caa-b4ea-c0fa10715068,What is the current warehouse utilization?,"Error communicating with AI: 400 API key not valid. Please pass a valid API key. [reason: ""API_KEY_INVALID""
+domain: ""googleapis.com""
+metadata {
+  key: ""service""
+  value: ""generativelanguage.googleapis.com""
+}
+, locale: ""en-US""
+message: ""API key not valid. Please pass a valid API key.""
+]",UNKNOWN,0.0,2026-02-22T05:30:52.254889
+e26adbd5-42a4-4dd5-bdc9-30ad41376ee5,Give me a summary of all alerts,"Error communicating with AI: 400 API key not valid. Please pass a valid API key. [reason: ""API_KEY_INVALID""
+domain: ""googleapis.com""
+metadata {
+  key: ""service""
+  value: ""generativelanguage.googleapis.com""
+}
+, locale: ""en-US""
+message: ""API key not valid. Please pass a valid API key.""
+]",UNKNOWN,0.0,2026-02-22T05:31:22.106394
+611a7445-5cfb-496d-826b-b3797cabceb7,What is the current warehouse utilization?,"Error communicating with AI: 400 API key not valid. Please pass a valid API key. [reason: ""API_KEY_INVALID""
+domain: ""googleapis.com""
+metadata {
+  key: ""service""
+  value: ""generativelanguage.googleapis.com""
+}
+, locale: ""en-US""
+message: ""API key not valid. Please pass a valid API key.""
+]",UNKNOWN,0.0,2026-02-22T05:37:31.776308
+3c38de9c-f255-4cda-87d0-fdde5505976e,hello,"Error communicating with AI: 400 API key not valid. Please pass a valid API key. [reason: ""API_KEY_INVALID""
+domain: ""googleapis.com""
+metadata {
+  key: ""service""
+  value: ""generativelanguage.googleapis.com""
+}
+, locale: ""en-US""
+message: ""API key not valid. Please pass a valid API key.""
+]",UNKNOWN,0.0,2026-02-22T05:39:43.409075
+e2d3a93b-0533-4922-a0d5-c656a2bd66c7,What is the current warehouse utilization?,"Error communicating with AI: 400 API key not valid. Please pass a valid API key. [reason: ""API_KEY_INVALID""
+domain: ""googleapis.com""
+metadata {
+  key: ""service""
+  value: ""generativelanguage.googleapis.com""
+}
+, locale: ""en-US""
+message: ""API key not valid. Please pass a valid API key.""
+]",UNKNOWN,0.0,2026-02-22T05:46:45.733382
+6d4117f9-1847-4548-bdd5-a64114f06938,What is the current warehouse utilization?,"Error communicating with AI: 400 API key not valid. Please pass a valid API key. [reason: ""API_KEY_INVALID""
+domain: ""googleapis.com""
+metadata {
+  key: ""service""
+  value: ""generativelanguage.googleapis.com""
+}
+, locale: ""en-US""
+message: ""API key not valid. Please pass a valid API key.""
+]",UNKNOWN,0.0,2026-02-22T05:49:29.999232
+24ab1759-ecc5-43f1-9dc0-424267d84422,hello,"Error communicating with AI: 400 API key not valid. Please pass a valid API key. [reason: ""API_KEY_INVALID""
+domain: ""googleapis.com""
+metadata {
+  key: ""service""
+  value: ""generativelanguage.googleapis.com""
+}
+, locale: ""en-US""
+message: ""API key not valid. Please pass a valid API key.""
+]",UNKNOWN,0.0,2026-02-22T05:54:08.312172

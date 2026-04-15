@@ -1,0 +1,9 @@
+customer_id,name,lat,lng,demand_qty
+C001,Raj Electronics,12.9352,77.6245,15
+C002,Priya Stores,12.9611,77.6387,8
+C003,Kumar Mart,12.9810,77.5958,20
+C004,Anjali Traders,12.9481,77.5726,12
+C005,Deepak Enterprises,12.9290,77.6750,5
+C006,Sunita Retail,12.9630,77.5510,30
+C007,Mehta Goods,12.9401,77.6082,18
+C008,Sharma Supplies,12.9720,77.6320,7

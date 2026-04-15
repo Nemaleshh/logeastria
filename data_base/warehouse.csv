@@ -1,0 +1,3 @@
+warehouse_id,max_capacity,current_occupied
+WH1,20000,15950
+WH2,5000,5
